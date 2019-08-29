@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+    <property name="FILE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss:SSS}:[%c:%L] [%thread] %-5level %msg%n"/>
+    <!--                                    [%d{yyyy-MM-dd HH:mm:ss.SSS}] [%5level] [%thread] %logger{0} %msg%n-->
+    <property name="log.home" value="/log/user"/>
+    <property name="log.level" value="INFO"/>
+    <property name="log.max.history" value="72"/>
+
+    <!--控制台输出日志-->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!--文件日志-->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--<filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <OnMatch>ACCEPT</OnMatch>
+            <OnMismatch>DENY</OnMismatch>
+        </filter>-->
+        <File>${log.home}/user.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${log.home}/user-%d{yyyy-MM-dd}/%d{yyyy-MM-dd}-.log</FileNamePattern>
+            <MaxHistory>${log.max.history}</MaxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+
+    <!--异步输出，异步的log片段必须在同步段后面，否则不起作用-->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>2048</queueSize>
+        <!-- 不设置neverBolck的话调用的是put方法是阻塞的，设置后调用offer方法是不阻塞的-->
+        <neverBlock>true</neverBlock>
+
+        <includeCallerData>true</includeCallerData>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="FILE" />
+    </appender>
+
+    <appender name="ASYN_STDOUT" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>2048</queueSize>
+        <!-- 不设置neverBolck的话调用的是put方法是阻塞的，设置后调用offer方法是不阻塞的-->
+        <neverBlock>true</neverBlock>
+
+        <includeCallerData>true</includeCallerData>
+
+        <appender-ref ref="STDOUT"/>
+    </appender>
+
+    <!--文件日志 -->
+    <root level="${log.level}">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </root>
+
+    <!--需要将日志单独输出的包路径-->
+    <logger name="com.gtja.user" level="${log.level}" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ASYNC_FILE" />
+    </logger>
+</configuration>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gtja.user.mapper.AccountMapper">
+
+    <!--转入-->
+    <update id="moveIn">
+        update user_account
+        <set>
+            account_balance = account_balance + #{money,jdbcType=DECIMAL}
+        </set>
+        where account_id = #{id,jdbcType=BIGINT} AND account_balance + #{money,jdbcType=DECIMAL}>=0
+    </update>
+
+    <!--转出-->
+    <update id="moveOut">
+        update user_account
+        <set>
+            account_balance = account_balance - #{money,jdbcType=DECIMAL}
+        </set>
+        where account_id = #{id,jdbcType=BIGINT} and account_balance - #{money,jdbcType=DECIMAL}>=0
+    </update>
+
+    <!--查询余额-->
+    <select id="queryAccountBalance" resultType="java.math.BigDecimal">
+        select account_balance from user_account
+        <where>
+            account_id=#{id,jdbcType=BIGINT}
+        </where>
+    </select>
+
+</mapper>

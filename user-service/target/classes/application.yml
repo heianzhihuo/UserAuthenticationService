@@ -1,0 +1,117 @@
+server:
+  port: 8087
+
+dubbo:
+  registry:
+    id: uac
+    address: 10.187.162.69:2181
+    #zookeeper://10.176.164.135:2181
+    #zookeeper://10.176.164.90:2181
+    #zookeeper://127.0.0.1:2181
+    #registry:
+    #zookeeper://localhost:2181
+    #zookeeper://10.176.164.138:2181
+    #zookeeper://10.176.164.207:2181
+    #zookeeper://localhost:2181
+    #zookeeper://10.176.164.127:2181
+    #zookeeper://127.0.0.1:2181;
+    check: false
+  application:
+    name: user-provider
+
+  protocol:
+    port: 20881
+    name: dubbo
+  scan:
+    base-packages: com.gtja.user.serviceImpl
+  provider:
+    threads: 200
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/user_service
+    username: root
+    password: gtja123456
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    timeout: 500
+
+    lettuce:
+      pool:
+        # 连接池最大连接数（使用负值表示没有限制） 默认 8
+        max-active: 8
+        # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认 -1
+        max-wait: 10000
+        # 连接池中的最大空闲连接 默认 8
+        max-idle: 8
+        # 连接池中的最小空闲连接 默认 0
+        min-idle: 0
+      shutdown-timeout: 5000
+
+    jedis:
+      pool:
+        # 连接池最大连接数（使用负值表示没有限制） 默认 8
+        max-active: 8
+        # 连接池最大阻塞等待时间（使用负值表示没有限制） 默认 -1
+        max-wait: -1
+        # 连接池中的最大空闲连接 默认 8
+        max-idle: 8
+        # 连接池中的最小空闲连接 默认 0
+        min-idle: 0
+
+
+
+  #
+mybatis:
+  mapper-locations: mapper/*.xml
+
+logging:
+
+  level:
+    root: info
+  path: /log/user
+  #config: spring/logback.xml
+  config: classpath:spring/logback.xml
+
+rocketmq:
+  producer:
+    isOnOff: on
+    groupName: userservice
+    namesrvAddr: 10.176.164.58:9876
+    #127.0.0.1:9876
+    #10.176.164.86:9876
+    #//根据自己的地址修改
+    instanceName: vehicleProducer
+    maxMessageSize: 131072
+    sendMsgTimeout: 10000
+    # 发送消息失败重试次数，默认2
+    retryTimesWhenSendFailed: 2
+  consumer:
+    isOnOff: on
+    namesrvAddr: 10.176.164.58:9876
+    #127.0.0.1:9876
+    #10.176.164.86:9876
+    groupName: userservice
+    topic: pay
+    tag: test
+    consumeThreadMin: 20
+    consumeThreadMax: 64
+    # 设置一次消费消息的条数，默认为1条
+    consumeMessageBatchMaxSize: 1
+
+#rocketmq.producer.groupName=vehicleProducerGroup
+#rocketmq.producer.namesrvAddr=192.168.1.242:9876//根据自己的地址修改
+#rocketmq.producer.instanceName=vehicleProducer
+#rocketmq.producer.topic=topic2019
+#rocketmq.producer.tag=test
+#rocketmq.producer.maxMessageSize=131072
+#rocketmq.producer.sendMsgTimeout=10000
+#
+#rocketmq.consumer.namesrvAddr=192.168.1.242:9876
+#rocketmq.consumer.groupName=vehicleProducerGroup
+#rocketmq.consumer.topic=topic2019
+#rocketmq.consumer.tag=test
+#rocketmq.consumer.consumeThreadMin=20
+#rocketmq.consumer.consumeThreadMax=64

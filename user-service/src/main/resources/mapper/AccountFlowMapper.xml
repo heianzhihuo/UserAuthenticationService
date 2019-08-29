@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gtja.user.mapper.AccountFlowMapper">
+
+    <resultMap type="com.gtja.user.pojo.AccountFlow" id="AccountFlowMap" >
+        <id column="id" jdbcType="BIGINT"  property="id"/>
+        <result column="account_id" jdbcType="BIGINT" property="accountId"/>
+        <result column="amount" jdbcType="DECIMAL" property="amount"/>
+        <result column="transaction_time" jdbcType="TIMESTAMP" property="transactionTime"/>
+        <result column="service_type" property="serviceType"/>
+        <result column="service_id" jdbcType="BIGINT" property="serviceId"/>
+    </resultMap>
+
+    <sql id="AccountFlowBaseColumn">
+        id,account_id,amount,transaction_time,service_type,service_id
+    </sql>
+
+    <!--创建流水-->
+    <insert id="createFlows">
+        insert into account_flow (account_id, amount, service_type, service_id) values
+        (#{accountId,jdbcType=BIGINT},#{money,jdbcType=DECIMAL},#{serviceType},#{serviceId,jdbcType=BIGINT})
+    </insert>
+
+    <insert id="createFlow">
+        insert into account_flow (account_id, amount, service_type, service_id)
+        select #{accountId,jdbcType=BIGINT},#{money,jdbcType=DECIMAL},#{serviceType},#{serviceId,jdbcType=BIGINT}
+        FROM DUAL
+        <where>
+            NOT EXISTS
+            (select * FROM account_flow
+            <where>
+                service_type=#{serviceType} and
+                service_id=#{serviceId,jdbcType=BIGINT} and
+                account_id=#{accountId,jdbcType=BIGINT}
+            </where>
+            )
+        </where>
+
+    </insert>
+
+    <delete id="deleteFlow">
+        delete from account_flow
+        <where>
+            account_id=#{accountId,jdbcType=BIGINT} and
+            amount=#{money,jdbcType=DECIMAL} and
+            service_type=#{serviceType} and
+            service_id=#{serviceId,jdbcType=BIGINT}
+        </where>
+    </delete>
+
+
+    <!--查询流水-->
+    <select id="queryAccountFlow" resultMap="AccountFlowMap">
+        select
+        <include refid="AccountFlowBaseColumn"/>
+        from account_flow
+        <where>
+        <if test="accountId!=null">
+            and account_id=#{accountId,jdbcType=BIGINT}
+        </if>
+            <!--这里大于等于用转义字符 &gt;= -->
+        <if test="start!=null">
+            and transaction_time &gt;= #{start,jdbcType=TIMESTAMP}
+        </if>
+            <!--这里小于等于用转义字符&lt;= -->
+        <if test="end!=null">
+            and transaction_time &lt;= #{end,jdbcType=TIMESTAMP}
+        </if>
+        </where>
+        <!--这个的作用是按时间排序-->
+        order by transaction_time desc
+    </select>
+
+</mapper>
